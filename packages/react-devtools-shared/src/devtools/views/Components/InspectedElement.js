@@ -20,6 +20,7 @@ import {ElementTypeSuspense} from 'react-devtools-shared/src/types';
 import CannotSuspendWarningMessage from './CannotSuspendWarningMessage';
 import InspectedElementView from './InspectedElementView';
 import {InspectedElementContext} from './InspectedElementContext';
+const EDITOR_PORT = process.env.EDITOR_PORT
 
 import styles from './InspectedElement.css';
 
@@ -205,6 +206,14 @@ export default function InspectedElementWrapper(_: Props) {
       </div>
     );
   }
+  const onOpenInEditor = useCallback(() => {
+    const source = inspectedElement?.source
+    if(!source) return
+    const url = new URL('http://127.0.0.1:' + EDITOR_PORT)
+    url.searchParams.set('path', source.fileName)
+    url.searchParams.set('line', source.lineNumber)
+    fetch(url)
+  },[inspectedElement])
 
   return (
     <div className={styles.InspectedElement}>
@@ -223,6 +232,7 @@ export default function InspectedElementWrapper(_: Props) {
             {element.displayName}
           </div>
         </div>
+        <Button onClick={onOpenInEditor}>Vim</Button>
 
         {canToggleError && (
           <Toggle
